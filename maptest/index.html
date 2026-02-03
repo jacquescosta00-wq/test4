@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Google Maps - Shopee</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f3f3;
+            color: #222;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ee4d2d;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #222;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e6e6e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #ee4d2d;
+            box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
+        }
+        .btn {
+            width: 100%;
+            background: #ee4d2d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+        .btn:hover {
+            filter: brightness(0.95);
+        }
+        .btn:active {
+            filter: brightness(0.9);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #fff3f3;
+            border: 1px solid #ff7b72;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            color: #d32f2f;
+        }
+        .address-confirm-card {
+            background: #fff;
+            border: 2px solid #ee4d2d;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(238, 77, 45, 0.15);
+        }
+        .address-confirm-card__title {
+            font-size: 12px;
+            color: rgba(0,0,0,0.6);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .address-confirm-card__address {
+            font-size: 14px;
+            color: #222;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .address-confirm-btn {
+            width: 100%;
+            background: #ee4d2d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+        .address-confirm-btn:hover {
+            filter: brightness(0.95);
+        }
+        .address-confirm-btn:active {
+            filter: brightness(0.9);
+        }
+        .success {
+            background: #f0f9f4;
+            border: 1px solid #7ee787;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            color: #2e7d32;
+        }
+        .map-container {
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #ee4d2d;
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            display: block;
+        }
+        .map-label {
+            background: #ee4d2d;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste Google Maps</h1>
+        
+        <div class="input-group">
+            <label for="addressInput">Digite um endereço:</label>
+            <input 
+                type="text" 
+                id="addressInput" 
+                placeholder="Ex: Rua Silva Lima, 20"
+                autocomplete="address-line1"
+            >
+        </div>
+
+        <button class="btn" id="searchBtn">Buscar Endereço</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const addressInput = document.getElementById('addressInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultDiv = document.getElementById('result');
+        
+        let googleMapsApiKey = '';
+
+        // Carrega a API key do servidor
+        async function loadGoogleMapsKey() {
+            try {
+                const response = await fetch('/api/google-maps-key');
+                const data = await response.json();
+                googleMapsApiKey = data.apiKey;
+            } catch (error) {
+                console.error('Erro ao carregar API key:', error);
+            }
+        }
+
+        function showLoading() {
+            resultDiv.innerHTML = '<div class="loading">🔍 Buscando endereço...</div>';
+            searchBtn.disabled = true;
+        }
+
+        function showError(message) {
+            resultDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+            searchBtn.disabled = false;
+        }
+
+        function showAddressConfirmCard(formattedAddress, location) {
+            // Cria URL do Google Maps Embed usando a API key do servidor
+            const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${googleMapsApiKey}&q=${encodeURIComponent(formattedAddress)}&zoom=17`;
+            
+            resultDiv.innerHTML = `
+                <div class="address-confirm-card">
+                    <div class="address-confirm-card__title">📍 Endereço encontrado:</div>
+                    <div class="address-confirm-card__address">${formattedAddress}</div>
+                    <button class="address-confirm-btn" id="confirmBtn">Confirmar endereço</button>
+                </div>
+                <div class="map-container">
+                    <div class="map-label">🗺️ Visualização no Mapa</div>
+                    <iframe 
+                        src="${mapUrl}"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            `;
+            searchBtn.disabled = false;
+
+            document.getElementById('confirmBtn').addEventListener('click', () => {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Endereço confirmado: ${formattedAddress}</div>
+                    <div class="map-container">
+                        <div class="map-label">🗺️ Localização Confirmada</div>
+                        <iframe 
+                            src="${mapUrl}"
+                            allowfullscreen
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                `;
+            });
+        }
+
+        async function searchAddress() {
+            const address = addressInput.value.trim();
+            
+            if (!address) {
+                showError('Por favor, digite um endereço.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Endereço não encontrado. Tente ser mais específico.');
+                    return;
+                }
+
+                showAddressConfirmCard(data.formatted_address, data.location);
+            } catch (error) {
+                console.error('Erro ao buscar endereço:', error);
+                showError('Erro ao buscar endereço. Tente novamente.');
+            }
+        }
+
+        // Carrega a API key ao iniciar
+        loadGoogleMapsKey().then(() => {
+            searchBtn.addEventListener('click', searchAddress);
+            addressInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    searchAddress();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

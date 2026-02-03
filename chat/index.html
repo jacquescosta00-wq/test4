@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Suporte - Shopee</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f3f3;
+            color: #222;
+        }
+        .header {
+            background: #ee4d2d;
+            color: #fff;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header__avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            color: #ee4d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            overflow: hidden;
+        }
+        .header__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .header__title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .header__subtitle {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        .chat {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 80px;
+        }
+        .message {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .message__avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fff;
+            color: #ee4d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .message__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .bubble {
+            background: #fff;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            max-width: 80%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .bubble.map-bubble {
+            max-width: 98%;
+            width: 98%;
+            padding: 0;
+        }
+        .bubble-example {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            font-size: 11px;
+            color: rgba(0,0,0,0.65);
+            line-height: 1.4;
+        }
+        .date-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+            width: 100%;
+            max-width: 100%;
+        }
+        .date-option {
+            background: #fff;
+            border: 2px solid #e6e6e6;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-weight: 500;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            word-wrap: break-word;
+        }
+        .date-option:hover {
+            border-color: #ee4d2d;
+            background: #fffaf9;
+        }
+        .date-option:active {
+            transform: scale(0.98);
+        }
+        .date-option:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .address-confirm-card {
+            background: #fff;
+            border: 2px solid #ee4d2d;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(238, 77, 45, 0.15);
+        }
+        .address-confirm-card__title {
+            font-size: 12px;
+            color: rgba(0,0,0,0.6);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .address-confirm-card__address {
+            font-size: 14px;
+            color: #222;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .address-confirm-btn {
+            width: 100%;
+            background: #ee4d2d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+        .address-confirm-btn:hover {
+            filter: brightness(0.95);
+        }
+        .address-confirm-btn:active {
+            filter: brightness(0.9);
+        }
+        .map-container {
+            margin-top: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #ee4d2d;
+            width: 100%;
+            max-width: 100%;
+        }
+        .map-container iframe {
+            width: 100%;
+            height: min(60vh, 500px);
+            min-height: 400px;
+            border: none;
+            display: block;
+        }
+        .map-label {
+            background: #ee4d2d;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .address-icon-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .address-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border: 2px solid #e6e6e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .address-icon svg {
+            width: 24px;
+            height: 24px;
+            color: #ee4d2d;
+        }
+        .address-icon-info {
+            flex: 1;
+        }
+        .address-icon-info__type {
+            font-size: 12px;
+            color: rgba(0,0,0,0.6);
+            margin-bottom: 2px;
+        }
+        .address-icon-info__name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+        }
+        .address-complement-card {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .address-complement-card__label {
+            font-size: 13px;
+            color: #222;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .address-complement-card__input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e6e6e6;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .address-complement-card__input:focus {
+            outline: none;
+            border-color: #ee4d2d;
+            box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
+        }
+        .address-complement-card__optional {
+            font-size: 11px;
+            color: rgba(0,0,0,0.5);
+            margin-bottom: 12px;
+        }
+        .bubble.user {
+            background: #ee4d2d;
+            color: #fff;
+            margin-left: auto;
+        }
+        .input-card {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 999px;
+            height: 56px;
+            padding: 0 8px 0 18px;
+            cursor: text;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            max-width: 360px;
+            width: min(360px, 92vw);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .input-card:hover { background: #fffaf9; }
+        .input-card:focus-within {
+            border-color: rgba(238, 77, 45, 0.55);
+            box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.12);
+        }
+        .input-card input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            background: transparent;
+            color: #333;
+        }
+        .input-card input::placeholder { color: #9aa0a6; }
+        .send-icon-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 999px;
+            background: #ee4d2d; /* tema Shopee */
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: filter 0.2s;
+        }
+        .send-icon-btn:hover { filter: brightness(0.92); }
+        .send-icon-btn:active { filter: brightness(0.82); }
+        .input-card.hidden {
+            display: none;
+        }
+        /* Audio player custom (tema Shopee) */
+        .audio-ui {
+            width: min(280px, 70vw);
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audio-play {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            border: none;
+            background: #ee4d2d;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .audio-play:hover { filter: brightness(0.92); }
+        .audio-play:active { filter: brightness(0.82); }
+        .audio-track {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .audio-progress {
+            height: 6px;
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .audio-progress__bar {
+            height: 100%;
+            width: 0%;
+            background: #ee4d2d;
+            border-radius: 999px;
+        }
+        .audio-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #777;
+        }
+        .audio-bubble {
+            padding: 10px;
+            max-width: 85%;
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 10px 12px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #bbb;
+            animation: bounce 1.2s infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.15s; }
+        .dot:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+            40% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* Recording indicator */
+        .recording {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            color: #555;
+            font-size: 12px;
+        }
+        .rec-bars {
+            display: inline-flex;
+            gap: 3px;
+            align-items: flex-end;
+        }
+        .rec-bar {
+            width: 3px;
+            height: 8px;
+            background: #ee4d2d;
+            border-radius: 2px;
+            animation: rec 0.9s infinite ease-in-out;
+        }
+        .rec-bar:nth-child(2) { animation-delay: 0.12s; height: 12px; }
+        .rec-bar:nth-child(3) { animation-delay: 0.24s; height: 10px; }
+        .rec-bar:nth-child(4) { animation-delay: 0.36s; height: 14px; }
+        @keyframes rec {
+            0%, 100% { transform: scaleY(0.6); opacity: 0.7; }
+            50% { transform: scaleY(1.15); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header__avatar">
+            <img src="/assets/Screenshot_5.png" alt="Suporte">
+            </div>
+            <div>
+            <div class="header__title">Suporte - Andressa</div>
+            <div class="header__subtitle">Atendimento Shopee</div>
+            </div>
+        </div>
+
+    <div class="chat" id="chat"></div>
+
+    <!-- áudio será inserido dentro da conversa -->
+
+    <script>
+        const chat = document.getElementById('chat');
+        // áudio será inserido dentro da conversa
+
+        const voiceId = 'HOfBIVLhom4mc9WvXfyH';
+        const modelId = 'eleven_multilingual_v2';
+        const language = 'pt-BR';
+
+        // Função centralizada para auto-scroll
+        function scrollToBottom() {
+            requestAnimationFrame(() => {
+                chat.scrollTop = chat.scrollHeight;
+            });
+        }
+
+        // MutationObserver para auto-scroll quando novos elementos são adicionados
+        let scrollTimeout;
+        const observer = new MutationObserver(() => {
+            // Debounce para evitar scrolls excessivos
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                scrollToBottom();
+            }, 50);
+        });
+
+        // Observar mudanças no chat
+        if (chat) {
+            observer.observe(chat, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        function appendUserMessage(text) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+            wrapper.style.justifyContent = 'flex-end';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble user';
+            bubble.textContent = text;
+
+            wrapper.appendChild(bubble);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function appendBotMessage(text, exampleText = null) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const content = document.createElement('div');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            // Mensagem principal
+            const mainText = document.createElement('div');
+            mainText.innerHTML = String(text).replace(/\n/g, '<br>');
+            bubble.appendChild(mainText);
+            
+            // Exemplo (se fornecido)
+            if (exampleText) {
+                const example = document.createElement('div');
+                example.className = 'bubble-example';
+                example.textContent = exampleText;
+                bubble.appendChild(example);
+            }
+
+            content.appendChild(bubble);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(content);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function appendBotTyping() {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(typing);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+            return wrapper;
+        }
+
+        function appendBotRecording() {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const rec = document.createElement('div');
+            rec.className = 'recording';
+            rec.innerHTML = `
+                <span>Gravando áudio...</span>
+                <span class="rec-bars" aria-hidden="true">
+                    <span class="rec-bar"></span>
+                    <span class="rec-bar"></span>
+                    <span class="rec-bar"></span>
+                    <span class="rec-bar"></span>
+                </span>
+            `;
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(rec);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+            return wrapper;
+        }
+
+        function formatCPF(value) {
+            // Remove tudo que não é dígito
+            const cpf = value.replace(/\D/g, '');
+            // Aplica a máscara
+            if (cpf.length <= 3) return cpf;
+            if (cpf.length <= 6) return cpf.replace(/(\d{3})(\d)/, '$1.$2');
+            if (cpf.length <= 9) return cpf.replace(/(\d{3})(\d{3})(\d)/, '$1.$2.$3');
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d)/, '$1.$2.$3-$4');
+        }
+
+        function validateCPF(cpf) {
+            const clean = cpf.replace(/\D/g, '');
+            if (clean.length !== 11) return false;
+            // Verifica se todos os dígitos são iguais
+            if (/^(\d)\1{10}$/.test(clean)) return false;
+            // Validação básica dos dígitos verificadores
+            let sum = 0;
+            for (let i = 0; i < 9; i++) {
+                sum += parseInt(clean.charAt(i)) * (10 - i);
+            }
+            let digit = 11 - (sum % 11);
+            if (digit >= 10) digit = 0;
+            if (digit !== parseInt(clean.charAt(9))) return false;
+            sum = 0;
+            for (let i = 0; i < 10; i++) {
+                sum += parseInt(clean.charAt(i)) * (11 - i);
+            }
+            digit = 11 - (sum % 11);
+            if (digit >= 10) digit = 0;
+            return digit === parseInt(clean.charAt(10));
+        }
+
+        function appendCPFInputCard() {
+            // Campo do cliente (direita)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+            wrapper.style.justifyContent = 'flex-end';
+
+            const card = document.createElement('div');
+            card.className = 'input-card';
+            card.id = 'cpfCard';
+            card.innerHTML = `
+                <input id="cpfInput" type="text" placeholder="000.000.000-00" autocomplete="off" maxlength="14">
+                <button type="button" class="send-icon-btn" id="sendBtn" aria-label="Enviar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="22" height="22" aria-hidden="true">
+                        <path d="M476.59 227.05l-.16-.07L49.35 49.84A23.56 23.56 0 0027.14 52 24.65 24.65 0 0016 72.59v113.29a24 24 0 0019.52 23.57l232.93 43.07a4 4 0 010 7.86L35.53 303.45A24 24 0 0016 327v113.31A23.57 23.57 0 0026.59 460a23.94 23.94 0 0013.22 4 24.55 24.55 0 009.52-1.93L476.4 285.94l.19-.09a32 32 0 000-58.8z"></path>
+                    </svg>
+                </button>
+            `;
+
+            wrapper.appendChild(card);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+
+            const input = card.querySelector('#cpfInput');
+            const sendBtn = card.querySelector('#sendBtn');
+
+            card.addEventListener('click', () => input.focus());
+            input.focus();
+
+            // Aplica máscara enquanto digita
+            input.addEventListener('input', (e) => {
+                const formatted = formatCPF(e.target.value);
+                e.target.value = formatted;
+            });
+
+            // CPF de teste: 01234567890 (para facilitar testes)
+            // Descomente a linha abaixo para preencher automaticamente:
+            // input.value = '012.345.678-90';
+
+            const submit = async () => {
+                const cpfValue = input.value.trim();
+                if (!cpfValue) return;
+                
+                const cleanCPF = cpfValue.replace(/\D/g, '');
+                if (cleanCPF.length !== 11) {
+                    appendBotMessage('Por favor, digite um CPF válido com 11 dígitos.');
+                return;
+            }
+
+                if (!validateCPF(cpfValue)) {
+                    appendBotMessage('CPF inválido. Por favor, verifique os dígitos e tente novamente.');
+                return;
+            }
+
+                await handleCPFSend(cpfValue, card);
+            };
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') submit();
+            });
+            sendBtn.addEventListener('click', submit);
+        }
+
+        function formatCEP(value) {
+            // Remove tudo que não é dígito
+            const cep = value.replace(/\D/g, '');
+            // Aplica a máscara CEP: 00000-000
+            if (cep.length <= 5) return cep;
+            return cep.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+
+        function appendAddressInputCard() {
+            // Campo do cliente (direita)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+            wrapper.style.justifyContent = 'flex-end';
+
+            const card = document.createElement('div');
+            card.className = 'input-card';
+            card.id = 'addressCard';
+            card.innerHTML = `
+                <input id="addressInput" type="text" placeholder="Endereço completo ou CEP" autocomplete="address-line1" maxlength="200">
+                <button type="button" class="send-icon-btn" id="sendBtn" aria-label="Enviar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="22" height="22" aria-hidden="true">
+                        <path d="M476.59 227.05l-.16-.07L49.35 49.84A23.56 23.56 0 0027.14 52 24.65 24.65 0 0016 72.59v113.29a24 24 0 0019.52 23.57l232.93 43.07a4 4 0 010 7.86L35.53 303.45A24 24 0 0016 327v113.31A23.57 23.57 0 0026.59 460a23.94 23.94 0 0013.22 4 24.55 24.55 0 009.52-1.93L476.4 285.94l.19-.09a32 32 0 000-58.8z"></path>
+                    </svg>
+                </button>
+            `;
+
+            wrapper.appendChild(card);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+
+            const input = card.querySelector('#addressInput');
+            const sendBtn = card.querySelector('#sendBtn');
+
+            card.addEventListener('click', () => input.focus());
+            input.focus();
+
+            // Detecta se é CEP (apenas números) e aplica máscara
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                // Remove espaços para verificação
+                const cleanValue = value.replace(/\s/g, '');
+                // Verifica se é realmente um CEP: apenas números e hífen, sem letras, vírgulas ou outros caracteres
+                // E tem no máximo 9 caracteres (8 dígitos + 1 hífen)
+                const isOnlyNumbersAndDash = /^[\d-]+$/.test(cleanValue);
+                const hasNoLetters = !/[a-zA-Z]/.test(value);
+                const hasNoCommas = !/,/.test(value);
+                const isShortEnough = cleanValue.length <= 9;
+                
+                // Só aplica máscara se for claramente um CEP (sem letras, vírgulas, e apenas números/hífen)
+                if (isOnlyNumbersAndDash && hasNoLetters && hasNoCommas && isShortEnough) {
+                    const formatted = formatCEP(value);
+                    e.target.value = formatted;
+                }
+            });
+
+            let isSubmitting = false; // Flag para evitar múltiplos envios
+
+            const submit = async () => {
+                if (isSubmitting) return; // Evitar múltiplos envios
+                
+                const addressValue = input.value.trim();
+                if (!addressValue) return;
+                
+                isSubmitting = true;
+                
+                // Desabilitar input e botão para evitar múltiplos envios
+                input.disabled = true;
+                sendBtn.disabled = true;
+                
+                // Salvar o valor antes de processar
+                const savedValue = addressValue;
+                
+                // Limpar o input apenas visualmente após salvar
+                input.value = '';
+                
+                // Processar o endereço
+                await handleAddressSend(savedValue, card);
+                
+                // Não reabilitar o input, pois o card será escondido
+            };
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevenir comportamento padrão do form
+                    e.stopPropagation(); // Parar propagação do evento
+                    submit();
+                }
+            });
+            sendBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                submit();
+            });
+        }
+
+        function generateWrongDates(correctDate) {
+            // Formato esperado: DD/MM/YYYY
+            const [day, month, year] = correctDate.split('/');
+            const wrongDates = [];
+            
+            // Gera 3 datas erradas variando dia, mês ou ano
+            for (let i = 0; i < 3; i++) {
+                let wrongDay = parseInt(day);
+                let wrongMonth = parseInt(month);
+                let wrongYear = parseInt(year);
+                
+                // Varia aleatoriamente
+                if (i === 0) {
+                    wrongDay = (wrongDay + Math.floor(Math.random() * 10) + 1) % 28 + 1;
+                } else if (i === 1) {
+                    wrongMonth = (wrongMonth + Math.floor(Math.random() * 6) + 1) % 12 + 1;
+                } else {
+                    wrongYear = wrongYear + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1);
+                }
+                
+                wrongDates.push(`${wrongDay.toString().padStart(2, '0')}/${wrongMonth.toString().padStart(2, '0')}/${wrongYear}`);
+            }
+            
+            return wrongDates;
+        }
+
+        async function showDateOptions(correctDate, nome) {
+            if (!correctDate) {
+                // Se não tiver data, pula direto para endereço
+                await proceedToAddress(nome);
+                return;
+            }
+
+            // Gera 3 datas erradas
+            const wrongDates = generateWrongDates(correctDate);
+            
+            // Cria array com 4 opções e embaralha
+            const options = [correctDate, ...wrongDates];
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+
+            // Cria UI com as opções
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const content = document.createElement('div');
+            content.style.maxWidth = 'min(85vw, 320px)';
+            content.style.width = '100%';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.style.width = '100%';
+            bubble.style.boxSizing = 'border-box';
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'date-options';
+
+            options.forEach((date) => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.className = 'date-option';
+                option.textContent = date;
+                option.addEventListener('click', async () => {
+                    // Desabilita todas as opções
+                    optionsContainer.querySelectorAll('.date-option').forEach(opt => {
+                        opt.style.pointerEvents = 'none';
+                        opt.style.opacity = '0.6';
+                    });
+                    
+                    // Mostra a resposta do usuário
+                    appendUserMessage(date);
+                    
+                    // Verifica se está correto
+                    if (date === correctDate) {
+                        const typingEl = appendBotTyping();
+                        await waitHuman(500, 800);
+                        typingEl.remove();
+                        
+                        appendBotMessage('✅ Data confirmada! Vamos continuar...');
+                        await waitHuman(600, 900);
+                        
+                        // Prossegue para pedir endereço
+                        await proceedToAddress(nome);
+                    } else {
+                        const typingEl = appendBotTyping();
+                        await waitHuman(500, 800);
+                        typingEl.remove();
+                        
+                        appendBotMessage('❌ Data incorreta. Por favor, tente novamente.');
+                        // Remove as opções e mostra novamente
+                        wrapper.remove();
+                        await wait(1000);
+                        await showDateOptions(correctDate, nome);
+                    }
+                });
+                optionsContainer.appendChild(option);
+            });
+
+            bubble.appendChild(optionsContainer);
+            content.appendChild(bubble);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(content);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        async function proceedToAddress(nome) {
+            // Áudio confirmando os dados com nome completo (sem pedir endereço)
+            await waitHuman(400, 600);
+            const recElConfirm = appendBotRecording();
+            const confirmText = nome ? `Perfeito, ${nome}. Seus dados foram confirmados com sucesso.` : 'Seus dados foram confirmados com sucesso.';
+            const confirmAudioUrl = await speak(confirmText);
+            await waitHuman(900, 1400);
+            recElConfirm.remove();
+            
+            if (confirmAudioUrl) {
+                await appendAudioMessage(confirmAudioUrl);
+                // Aguarda o áudio terminar + 2 segundos
+                await wait(2000);
+            } else {
+                await waitHuman(800, 1200);
+            }
+
+            // Áudio perguntando pelo endereço/CEP (mais humano e natural)
+            const recEl2 = appendBotRecording();
+            const primeiroNome = nome ? nome.split(' ')[0] : '';
+            const addressText = primeiroNome 
+                ? `${primeiroNome}, por favor nos envie o seu endereço ou se preferir o seu CEP para concluirmos o seu pedido`
+                : 'Por favor nos envie o seu endereço ou se preferir o seu CEP para concluirmos o seu pedido';
+            const addressAudioUrl = await speak(addressText);
+            await waitHuman(900, 1400);
+            recEl2.remove();
+            
+            if (addressAudioUrl) {
+                await appendAudioMessage(addressAudioUrl);
+            }
+
+            // Delay de 1.5s após o áudio
+            await wait(1500);
+
+            // Mensagem de texto com exemplo (separado visualmente)
+            appendBotMessage('Pode me enviar seu endereço completo ou apenas o CEP? 😉', 'Exemplo: Rua Exemplo, nº 123 – Centro, São Paulo');
+
+            // Input card para endereço/CEP
+            await wait(300);
+            appendAddressInputCard();
+        }
+
+        async function handleAddressSend(address, cardEl) {
+            if (!address) return;
+            if (cardEl) cardEl.classList.add('hidden');
+
+            appendUserMessage(address);
+
+            const typingEl = appendBotTyping();
+            await waitHuman(500, 800);
+            typingEl.remove();
+
+            // Detecta se é CEP (apenas números) ou endereço
+            const cleanAddress = address.replace(/\D/g, '');
+            const isCEP = cleanAddress.length === 8;
+
+            if (isCEP) {
+                // Buscar endereço por CEP
+                try {
+                    const response = await fetch(`/api/cep?cep=${encodeURIComponent(address)}`);
+                    const data = await response.json();
+
+                    if (!response.ok || data.erro) {
+                        appendBotMessage('❌ CEP não encontrado. Por favor, verifique e tente novamente.');
+                        return;
+                    }
+
+                    // Mostrar card pedindo número e complemento
+                    showCEPComplementCard(data, address);
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                    appendBotMessage('❌ Erro ao buscar CEP. Tente novamente.');
+                }
+            } else {
+                // Buscar endereço no Google Maps
+                try {
+                    const response = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        appendBotMessage(`❌ ${data.error || 'Endereço não encontrado. Tente ser mais específico.'}`);
+                        return;
+                    }
+
+                    // Mostrar card de confirmação do endereço (precisa do nome da pessoa)
+                    // Vamos buscar o nome do localStorage ou usar uma variável global
+                    const userName = window.chatUserName || 'Cliente';
+                    showAddressConfirmCard(data.formatted_address, data.location, userName);
+                } catch (error) {
+                    console.error('Erro ao buscar endereço:', error);
+                    appendBotMessage('❌ Erro ao buscar endereço. Tente novamente.');
+                }
+            }
+        }
+
+        function parseAddressFromGoogle(formattedAddress) {
+            // Tenta extrair componentes do endereço formatado do Google
+            // Exemplo: "Rua Exemplo, 123 - Centro, São Paulo - SP, 01234-567, Brasil"
+            const parts = formattedAddress.split(',').map(p => p.trim());
+            let rua = parts[0] || '';
+            let numero = '';
+            let bairro = '';
+            let cidade = '';
+            let estado = '';
+            
+            // Tenta extrair número da rua (pode estar na primeira parte)
+            const ruaMatch = rua.match(/^(.+?)\s*,\s*(\d+)/);
+            if (ruaMatch) {
+                rua = ruaMatch[1].trim();
+                numero = ruaMatch[2];
+            } else {
+                // Tenta extrair número da segunda parte
+                if (parts.length > 1 && /^\d+/.test(parts[1])) {
+                    numero = parts[1].match(/^\d+/)[0];
+                    rua = parts[0];
+                }
+            }
+            
+            // Bairro geralmente está na segunda ou terceira parte (pode ter "-" antes)
+            if (parts.length > 1) {
+                const part2 = parts[1];
+                if (!/^\d+/.test(part2) && !part2.match(/^[A-Z]{2}$/)) {
+                    bairro = part2.replace(/^-\s*/, '').trim();
+                }
+            }
+            
+            // Cidade e estado geralmente estão juntos
+            for (let i = 2; i < parts.length; i++) {
+                const part = parts[i];
+                if (part.match(/^[A-Z]{2}$/)) {
+                    estado = part;
+                    if (i > 2) {
+                        cidade = parts[i - 1].replace(/^-\s*/, '').trim();
+                    }
+                    break;
+                }
+            }
+            
+            // Se não encontrou cidade/estado, tenta padrão "Cidade - Estado"
+            if (!cidade && parts.length > 2) {
+                const cidadeEstadoMatch = parts[2].match(/^(.+?)\s*-\s*([A-Z]{2})/);
+                if (cidadeEstadoMatch) {
+                    cidade = cidadeEstadoMatch[1].trim();
+                    estado = cidadeEstadoMatch[2];
+                }
+            }
+            
+            return { rua: rua || formattedAddress, numero: numero || 's/n', bairro: bairro || '', cidade: cidade || '', estado: estado || '' };
+        }
+
+        async function showAddressConfirmCard(formattedAddress, location, userName) {
+            // Busca a API key do Google Maps do servidor
+            let googleMapsApiKey = '';
+            try {
+                const keyResponse = await fetch('/api/google-maps-key');
+                const keyData = await keyResponse.json();
+                googleMapsApiKey = keyData.apiKey;
+            } catch (error) {
+                console.error('Erro ao carregar API key:', error);
+            }
+
+            // Parse do endereço
+            const addressParts = parseAddressFromGoogle(formattedAddress);
+
+            // 1. Mostrar apenas o mapa (sem botões)
+            const mapWrapper = document.createElement('div');
+            mapWrapper.className = 'message';
+            const mapAvatar = document.createElement('div');
+            mapAvatar.className = 'message__avatar';
+            const mapAvatarImg = document.createElement('img');
+            mapAvatarImg.src = '/assets/Screenshot_5.png';
+            mapAvatarImg.alt = 'Andressa';
+            mapAvatar.appendChild(mapAvatarImg);
+            const mapContent = document.createElement('div');
+            mapContent.style.maxWidth = '98%';
+            mapContent.style.width = '98%';
+            const mapBubble = document.createElement('div');
+            mapBubble.className = 'bubble map-bubble';
+            mapBubble.style.padding = '0';
+            mapBubble.style.overflow = 'hidden';
+
+            if (googleMapsApiKey) {
+                const mapContainer = document.createElement('div');
+                mapContainer.className = 'map-container';
+                mapContainer.style.marginTop = '0';
+                
+                const mapLabel = document.createElement('div');
+                mapLabel.className = 'map-label';
+                mapLabel.textContent = '🗺️ Visualização no Mapa';
+                
+                const mapIframe = document.createElement('iframe');
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${googleMapsApiKey}&q=${encodeURIComponent(formattedAddress)}&zoom=17`;
+                mapIframe.allowFullscreen = true;
+                mapIframe.loading = 'lazy';
+                mapIframe.referrerPolicy = 'no-referrer-when-downgrade';
+                
+                mapContainer.appendChild(mapLabel);
+                mapContainer.appendChild(mapIframe);
+                mapBubble.appendChild(mapContainer);
+            }
+
+            mapContent.appendChild(mapBubble);
+            mapWrapper.appendChild(mapAvatar);
+            mapWrapper.appendChild(mapContent);
+            chat.appendChild(mapWrapper);
+            scrollToBottom();
+
+            // 2. Aguardar um pouco e enviar áudio
+            await waitHuman(800, 1200);
+            
+            const recEl = appendBotRecording();
+            
+            // Formatar endereço para fala usando ChatGPT
+            let enderecoParaFalar = formattedAddress;
+            if (addressParts.rua || addressParts.cidade) {
+                let enderecoTemp = '';
+                if (addressParts.rua) enderecoTemp += addressParts.rua;
+                if (addressParts.numero && addressParts.numero !== 's/n') {
+                    enderecoTemp += `, número ${addressParts.numero}`;
+                }
+                if (addressParts.bairro) {
+                    enderecoTemp += `, ${addressParts.bairro}`;
+                }
+                if (addressParts.cidade) {
+                    enderecoTemp += `, ${addressParts.cidade}`;
+                }
+                if (addressParts.estado) {
+                    enderecoTemp += `, ${addressParts.estado}`;
+                }
+                if (enderecoTemp) enderecoParaFalar = enderecoTemp;
+            }
+            
+            // Enviar para ChatGPT formatar de forma falável (ex: SP -> São Paulo)
+            try {
+                const formatResponse = await fetch('/api/format-address', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: enderecoParaFalar })
+                });
+                if (formatResponse.ok) {
+                    const formatData = await formatResponse.json();
+                    enderecoParaFalar = formatData.formatted || enderecoParaFalar;
+                }
+            } catch (e) {
+                console.error('Erro ao formatar endereço:', e);
+            }
+            
+            const enderecoAudio = `Por favor, confirme pra mim se este é o seu endereço: ${enderecoParaFalar}`;
+            const audioUrl = await speak(enderecoAudio);
+            await waitHuman(900, 1400);
+            recEl.remove();
+            
+            if (audioUrl) {
+                await appendAudioMessage(audioUrl);
+            }
+
+            // 3. Mostrar texto do endereço
+            await waitHuman(600, 900);
+            let enderecoTexto = addressParts.rua;
+            if (addressParts.numero && addressParts.numero !== 's/n') {
+                enderecoTexto += `, nº ${addressParts.numero}`;
+            }
+            if (addressParts.bairro) {
+                enderecoTexto += ` – ${addressParts.bairro}`;
+            }
+            if (addressParts.cidade) {
+                enderecoTexto += `, ${addressParts.cidade}`;
+            }
+            if (addressParts.estado) {
+                enderecoTexto += ` – ${addressParts.estado}`;
+            }
+            // Se não conseguiu parsear, usa o endereço completo
+            if (!enderecoTexto || enderecoTexto === addressParts.rua && !addressParts.bairro && !addressParts.cidade) {
+                enderecoTexto = formattedAddress;
+            }
+            // Armazenar endereço formatado para uso posterior
+            window.currentAddressText = enderecoTexto;
+            appendBotMessage('Por favor, confirme se este é o seu endereço:', enderecoTexto);
+
+            // 4. Delay antes dos botões
+            await waitHuman(800, 1200);
+
+            // 5. Mostrar botões
+            const buttonsWrapper = document.createElement('div');
+            buttonsWrapper.className = 'message';
+            const buttonsAvatar = document.createElement('div');
+            buttonsAvatar.className = 'message__avatar';
+            const buttonsAvatarImg = document.createElement('img');
+            buttonsAvatarImg.src = '/assets/Screenshot_5.png';
+            buttonsAvatarImg.alt = 'Andressa';
+            buttonsAvatar.appendChild(buttonsAvatarImg);
+            const buttonsContent = document.createElement('div');
+            buttonsContent.style.maxWidth = '85%';
+            buttonsContent.style.width = '85%';
+            const buttonsBubble = document.createElement('div');
+            buttonsBubble.className = 'bubble';
+            buttonsBubble.style.padding = '14px 16px';
+
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.style.display = 'flex';
+            buttonsContainer.style.gap = '12px';
+            buttonsContainer.style.width = '100%';
+
+            const simBtn = document.createElement('button');
+            simBtn.type = 'button';
+            simBtn.className = 'address-confirm-btn';
+            simBtn.style.flex = '1';
+            simBtn.style.minWidth = '0';
+            simBtn.textContent = 'SIM';
+            simBtn.addEventListener('click', async () => {
+                simBtn.disabled = true;
+                naoBtn.disabled = true;
+                simBtn.style.opacity = '0.7';
+                naoBtn.style.opacity = '0.7';
+                
+                // Armazenar endereço confirmado
+                window.chatUserAddress = window.currentAddressText || enderecoTexto;
+                
+                // Chamar função para mostrar opções de frete
+                await showShippingOptions();
+            });
+
+            const naoBtn = document.createElement('button');
+            naoBtn.type = 'button';
+            naoBtn.className = 'address-confirm-btn';
+            naoBtn.style.flex = '1';
+            naoBtn.style.minWidth = '0';
+            naoBtn.style.background = '#fff';
+            naoBtn.style.color = '#ee4d2d';
+            naoBtn.style.border = '2px solid #ee4d2d';
+            naoBtn.textContent = 'NÃO';
+            naoBtn.addEventListener('click', async () => {
+                mapWrapper.remove();
+                buttonsWrapper.remove();
+                appendBotMessage('Por favor, digite o endereço correto ou o CEP novamente.');
+                await wait(300);
+                appendAddressInputCard();
+            });
+
+            buttonsContainer.appendChild(simBtn);
+            buttonsContainer.appendChild(naoBtn);
+            buttonsBubble.appendChild(buttonsContainer);
+            buttonsContent.appendChild(buttonsBubble);
+            buttonsWrapper.appendChild(buttonsAvatar);
+            buttonsWrapper.appendChild(buttonsContent);
+            chat.appendChild(buttonsWrapper);
+            scrollToBottom();
+        }
+
+        async function showCEPComplementCard(cepData, cep) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const content = document.createElement('div');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            // Mostrar endereço encontrado
+            const addressInfo = document.createElement('div');
+            addressInfo.style.marginBottom = '12px';
+            addressInfo.style.fontSize = '13px';
+            addressInfo.style.color = '#222';
+            addressInfo.innerHTML = `<strong>CEP encontrado:</strong><br>${cepData.logradouro || ''}, ${cepData.bairro || ''} - ${cepData.localidade || ''}/${cepData.uf || ''}`;
+
+            const card = document.createElement('div');
+            card.className = 'address-complement-card';
+
+            const numberLabel = document.createElement('div');
+            numberLabel.className = 'address-complement-card__label';
+            numberLabel.textContent = 'Número *';
+
+            const numberInput = document.createElement('input');
+            numberInput.type = 'text';
+            numberInput.className = 'address-complement-card__input';
+            numberInput.placeholder = 'Ex: 123';
+            numberInput.required = true;
+
+            const complementLabel = document.createElement('div');
+            complementLabel.className = 'address-complement-card__label';
+            complementLabel.textContent = 'Complemento';
+
+            const complementOptional = document.createElement('div');
+            complementOptional.className = 'address-complement-card__optional';
+            complementOptional.textContent = '(Opcional - apartamento, bloco, etc.)';
+
+            const complementInput = document.createElement('input');
+            complementInput.type = 'text';
+            complementInput.className = 'address-complement-card__input';
+            complementInput.placeholder = 'Ex: Apto 101';
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.type = 'button';
+            confirmBtn.className = 'address-confirm-btn';
+            confirmBtn.textContent = 'Confirmar endereço';
+            confirmBtn.addEventListener('click', async () => {
+                const numero = numberInput.value.trim();
+                if (!numero) {
+                    numberInput.style.borderColor = '#ee4d2d';
+                    return;
+                }
+
+                card.style.opacity = '0.6';
+                confirmBtn.disabled = true;
+                numberInput.disabled = true;
+                complementInput.disabled = true;
+
+                const complemento = complementInput.value.trim();
+                const enderecoCompleto = `${cepData.logradouro}, ${numero}${complemento ? ` - ${complemento}` : ''}, ${cepData.bairro} - ${cepData.localidade}/${cepData.uf}`;
+
+                const typingEl = appendBotTyping();
+                await waitHuman(500, 800);
+                typingEl.remove();
+
+                appendBotMessage(`✅ Endereço confirmado: ${enderecoCompleto}`);
+                
+                // Mostrar mapa visual com botões
+                await showCEPAddressMap(enderecoCompleto, cepData, numero, complemento, window.chatUserName || 'Cliente');
+            });
+
+            card.appendChild(numberLabel);
+            card.appendChild(numberInput);
+            card.appendChild(complementLabel);
+            card.appendChild(complementOptional);
+            card.appendChild(complementInput);
+            card.appendChild(confirmBtn);
+
+            bubble.appendChild(addressInfo);
+            bubble.appendChild(card);
+            content.appendChild(bubble);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(content);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+
+            numberInput.focus();
+        }
+
+        async function showCEPAddressMap(enderecoCompleto, cepData, numero, complemento, userName) {
+            // Busca a API key do Google Maps do servidor
+            let googleMapsApiKey = '';
+            try {
+                const keyResponse = await fetch('/api/google-maps-key');
+                const keyData = await keyResponse.json();
+                googleMapsApiKey = keyData.apiKey;
+            } catch (error) {
+                console.error('Erro ao carregar API key:', error);
+                return;
+            }
+
+            if (!googleMapsApiKey) return;
+
+            // 1. Mostrar apenas o mapa (sem botões)
+            const mapWrapper = document.createElement('div');
+            mapWrapper.className = 'message';
+            const mapAvatar = document.createElement('div');
+            mapAvatar.className = 'message__avatar';
+            const mapAvatarImg = document.createElement('img');
+            mapAvatarImg.src = '/assets/Screenshot_5.png';
+            mapAvatarImg.alt = 'Andressa';
+            mapAvatar.appendChild(mapAvatarImg);
+            const mapContent = document.createElement('div');
+            mapContent.style.maxWidth = '95%';
+            mapContent.style.width = '95%';
+            const mapBubble = document.createElement('div');
+            mapBubble.className = 'bubble map-bubble';
+            mapBubble.style.overflow = 'hidden';
+
+            const mapContainer = document.createElement('div');
+            mapContainer.className = 'map-container';
+            mapContainer.style.marginTop = '0';
+            
+            const mapLabel = document.createElement('div');
+            mapLabel.className = 'map-label';
+            mapLabel.textContent = '🗺️ Visualização no Mapa';
+            
+            const mapIframe = document.createElement('iframe');
+            mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${googleMapsApiKey}&q=${encodeURIComponent(enderecoCompleto)}&zoom=17`;
+            mapIframe.allowFullscreen = true;
+            mapIframe.loading = 'lazy';
+            mapIframe.referrerPolicy = 'no-referrer-when-downgrade';
+            
+            mapContainer.appendChild(mapLabel);
+            mapContainer.appendChild(mapIframe);
+            mapBubble.appendChild(mapContainer);
+            mapContent.appendChild(mapBubble);
+            mapWrapper.appendChild(mapAvatar);
+            mapWrapper.appendChild(mapContent);
+            chat.appendChild(mapWrapper);
+            scrollToBottom();
+
+            // 2. Aguardar um pouco e enviar áudio
+            await waitHuman(800, 1200);
+            
+            const recEl = appendBotRecording();
+            let enderecoAudio = `Por favor, confirme pra mim se este é o seu endereço: ${cepData.logradouro}, número ${numero}`;
+            if (complemento) {
+                enderecoAudio += `, ${complemento}`;
+            }
+            enderecoAudio += `, bairro ${cepData.bairro}, ${cepData.localidade}, ${cepData.uf}`;
+            
+            const audioUrl = await speak(enderecoAudio);
+            await waitHuman(900, 1400);
+            recEl.remove();
+            
+            if (audioUrl) {
+                await appendAudioMessage(audioUrl);
+            }
+
+            // 3. Mostrar texto do endereço
+            await waitHuman(600, 900);
+            const enderecoTexto = `${cepData.logradouro}${numero ? `, nº ${numero}` : ''}${complemento ? ` - ${complemento}` : ''} – ${cepData.bairro}, ${cepData.localidade} – ${cepData.uf}`;
+            // Armazenar endereço formatado para uso posterior
+            window.currentAddressText = enderecoTexto;
+            appendBotMessage('Por favor, confirme se este é o seu endereço:', enderecoTexto);
+
+            // 4. Delay antes dos botões
+            await waitHuman(800, 1200);
+
+            // 5. Mostrar botões
+            const buttonsWrapper = document.createElement('div');
+            buttonsWrapper.className = 'message';
+            const buttonsAvatar = document.createElement('div');
+            buttonsAvatar.className = 'message__avatar';
+            const buttonsAvatarImg = document.createElement('img');
+            buttonsAvatarImg.src = '/assets/Screenshot_5.png';
+            buttonsAvatarImg.alt = 'Andressa';
+            buttonsAvatar.appendChild(buttonsAvatarImg);
+            const buttonsContent = document.createElement('div');
+            buttonsContent.style.maxWidth = '85%';
+            buttonsContent.style.width = '85%';
+            const buttonsBubble = document.createElement('div');
+            buttonsBubble.className = 'bubble';
+            buttonsBubble.style.padding = '14px 16px';
+
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.style.display = 'flex';
+            buttonsContainer.style.gap = '12px';
+            buttonsContainer.style.width = '100%';
+
+            const simBtn = document.createElement('button');
+            simBtn.type = 'button';
+            simBtn.className = 'address-confirm-btn';
+            simBtn.style.flex = '1';
+            simBtn.style.minWidth = '0';
+            simBtn.textContent = 'SIM';
+            simBtn.addEventListener('click', async () => {
+                simBtn.disabled = true;
+                naoBtn.disabled = true;
+                simBtn.style.opacity = '0.7';
+                naoBtn.style.opacity = '0.7';
+                
+                // Armazenar endereço confirmado
+                window.chatUserAddress = window.currentAddressText || enderecoTexto;
+                
+                // Chamar função para mostrar opções de frete
+                await showShippingOptions();
+            });
+
+            const naoBtn = document.createElement('button');
+            naoBtn.type = 'button';
+            naoBtn.className = 'address-confirm-btn';
+            naoBtn.style.flex = '1';
+            naoBtn.style.minWidth = '0';
+            naoBtn.style.background = '#fff';
+            naoBtn.style.color = '#ee4d2d';
+            naoBtn.style.border = '2px solid #ee4d2d';
+            naoBtn.textContent = 'NÃO';
+            naoBtn.addEventListener('click', async () => {
+                mapWrapper.remove();
+                buttonsWrapper.remove();
+                appendBotMessage('Por favor, digite o endereço correto ou o CEP novamente.');
+                await wait(300);
+                appendAddressInputCard();
+            });
+
+            buttonsContainer.appendChild(simBtn);
+            buttonsContainer.appendChild(naoBtn);
+            buttonsBubble.appendChild(buttonsContainer);
+            buttonsContent.appendChild(buttonsBubble);
+            buttonsWrapper.appendChild(buttonsAvatar);
+            buttonsWrapper.appendChild(buttonsContent);
+            chat.appendChild(buttonsWrapper);
+            scrollToBottom();
+        }
+
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        const waitHuman = (minMs, maxMs) => wait(Math.floor(minMs + Math.random() * (maxMs - minMs)));
+
+        async function startFlow() {
+            // 🟢 Mensagem 1 — boas-vindas (Delay: 400ms – 700ms)
+            let t = appendBotTyping();
+            await waitHuman(400, 700);
+            t.remove();
+            appendBotMessage('Oi 😊\n<strong>Eu sou a Andressa</strong>, atendente virtual, e vou te ajudar a <strong>finalizar seu pedido</strong> agora mesmo.');
+
+            // 🟢 Mensagem 2 — pergunta do CPF (Delay: 600ms – 900ms após a primeira)
+            t = appendBotTyping();
+            await waitHuman(600, 900);
+            t.remove();
+            appendBotMessage('<strong>Seu CPF é necessário para finalizar essa etapa do pedido.</strong>');
+
+            // 🟢 Input "CPF" — aparecer 300ms depois da pergunta + foco automático
+            await wait(300);
+            appendCPFInputCard();
+        }
+
+        async function speak(text) {
+            try {
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text,
+                        model_id: modelId,
+                        voice_id: voiceId,
+                        language
+                    })
+                });
+
+                if (!res.ok) return;
+
+                const audioBlob = await res.blob();
+                return URL.createObjectURL(audioBlob);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function handleCPFSend(cpf, cardEl) {
+            if (!cpf) return;
+            if (cardEl) cardEl.classList.add('hidden');
+
+            appendUserMessage(cpf);
+
+            // Mostrar indicador de digitação durante a consulta
+            const typingEl = appendBotTyping();
+
+            // Consultar CPF na API
+            try {
+                const response = await fetch(`/api/verify-cpf?cpf=${encodeURIComponent(cpf)}`);
+                
+                // Remove o indicador de digitação quando a resposta chegar
+                typingEl.remove();
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    appendBotMessage('❌ Erro ao processar resposta do servidor. Tente novamente.');
+                    console.error('Erro ao parsear JSON:', jsonError);
+                    return;
+                }
+                
+                if (!response.ok) {
+                    const errorMsg = data?.error || `Erro ${response.status}: ${response.statusText}`;
+                    appendBotMessage(`❌ ${errorMsg}`);
+                    console.error('Erro na verificação de CPF:', { status: response.status, data });
+                    return;
+                }
+
+                // CPF verificado com sucesso - etapa de confirmação de data de nascimento
+                const nome = data.NOME || data.nome || '';
+                const dataNascimento = data.NASC || data.nasc || ''; // Formato: DD/MM/YYYY
+                
+                // Armazenar dados do usuário globalmente
+                window.chatUserFullName = nome;
+                window.chatUserCPF = cpf.replace(/\D/g, '');
+                window.chatCPFData = data; // Armazenar dados completos do CPF
+                
+                // Áudio de confirmação
+                await waitHuman(400, 600);
+                const recEl = appendBotRecording();
+                const primeiroNome = nome ? nome.split(' ')[0] : '';
+                let confirmText = primeiroNome ? `Olá, ${primeiroNome}. Para confirmarmos que é você, selecione abaixo a sua data de nascimento.` : 'Para confirmarmos que é você, selecione abaixo a sua data de nascimento.';
+                
+                const audioUrl = await speak(confirmText);
+                await waitHuman(900, 1400);
+                recEl.remove();
+                
+                // Aguardar o áudio terminar completamente + 2 segundos
+                if (audioUrl) {
+                    await appendAudioMessage(audioUrl);
+                    await wait(2000);
+                } else {
+                    await waitHuman(800, 1200);
+                }
+
+                // Mensagem de texto com subtexto
+                appendBotMessage('Para confirmarmos que é você, selecione abaixo a sua data de nascimento.', 'É uma etapa rápida de segurança pra finalizar seu pedido.');
+
+                // Mostrar opções de data de nascimento
+                await wait(300);
+                await showDateOptions(dataNascimento, nome);
+
+            } catch (error) {
+                appendBotMessage('❌ Erro ao verificar CPF. Por favor, tente novamente.');
+                console.error('Erro ao verificar CPF:', error);
+            }
+        }
+
+        async function appendAudioMessage(audioUrl) {
+
+            // Mensagem do suporte com áudio (sem texto)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message__avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '/assets/Screenshot_5.png';
+            avatarImg.alt = 'Andressa';
+            avatar.appendChild(avatarImg);
+
+            const content = document.createElement('div');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble audio-bubble';
+
+            // Player custom
+            const audio = document.createElement('audio');
+            audio.src = audioUrl;
+            audio.preload = 'metadata';
+
+            const ui = document.createElement('div');
+            ui.className = 'audio-ui';
+
+            const playBtn = document.createElement('button');
+            playBtn.type = 'button';
+            playBtn.className = 'audio-play';
+            playBtn.setAttribute('aria-label', 'Reproduzir');
+            playBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"></path>
+                </svg>
+            `;
+
+            const track = document.createElement('div');
+            track.className = 'audio-track';
+
+            const progress = document.createElement('div');
+            progress.className = 'audio-progress';
+            const bar = document.createElement('div');
+            bar.className = 'audio-progress__bar';
+            progress.appendChild(bar);
+
+            const meta = document.createElement('div');
+            meta.className = 'audio-meta';
+            const timeLeft = document.createElement('span');
+            timeLeft.textContent = '0:00';
+            const timeRight = document.createElement('span');
+            timeRight.textContent = '0:00';
+            meta.appendChild(timeLeft);
+            meta.appendChild(timeRight);
+
+            track.appendChild(progress);
+            track.appendChild(meta);
+
+            ui.appendChild(playBtn);
+            ui.appendChild(track);
+
+            bubble.appendChild(ui);
+            bubble.appendChild(audio);
+            content.appendChild(bubble);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(content);
+            chat.appendChild(wrapper);
+            scrollToBottom();
+
+            const fmt = (s) => {
+                if (!isFinite(s) || s < 0) return '0:00';
+                const m = Math.floor(s / 60);
+                const r = Math.floor(s % 60).toString().padStart(2, '0');
+                return `${m}:${r}`;
+            };
+
+            const setPlaying = (isPlaying) => {
+                playBtn.innerHTML = isPlaying
+                    ? `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>`
+                    : `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>`;
+            };
+
+            playBtn.addEventListener('click', async () => {
+                if (audio.paused) {
+                    try { await audio.play(); } catch {}
+                } else {
+                    audio.pause();
+                }
+            });
+
+            progress.addEventListener('click', (e) => {
+                const rect = progress.getBoundingClientRect();
+                const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+                if (isFinite(audio.duration)) {
+                    audio.currentTime = pct * audio.duration;
+                }
+            });
+
+            audio.addEventListener('loadedmetadata', () => {
+                timeRight.textContent = fmt(audio.duration);
+            });
+            audio.addEventListener('play', () => setPlaying(true));
+            audio.addEventListener('pause', () => setPlaying(false));
+            audio.addEventListener('ended', () => setPlaying(false));
+            audio.addEventListener('timeupdate', () => {
+                if (isFinite(audio.duration) && audio.duration > 0) {
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    bar.style.width = `${pct}%`;
+                    timeLeft.textContent = fmt(audio.currentTime);
+                }
+            });
+
+            // Autoplay e retornar Promise que resolve quando o áudio terminar
+            return new Promise((resolve) => {
+                let resolved = false;
+                const doResolve = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve();
+                    }
+                };
+
+                const onEnded = () => {
+                    audio.removeEventListener('ended', onEnded);
+                    doResolve();
+                };
+                audio.addEventListener('ended', onEnded);
+                
+                // Tenta tocar o áudio
+                const tryPlay = async () => {
+                    try {
+                        await audio.play();
+                    } catch (err) {
+                        // Se não conseguir tocar, estima duração baseada no metadata ou usa fallback
+                        if (audio.duration && isFinite(audio.duration)) {
+                            setTimeout(doResolve, audio.duration * 1000);
+                        } else {
+                            setTimeout(doResolve, 3000);
+                        }
+                    }
+                };
+
+                // Se já tem metadata, tenta tocar
+                if (audio.readyState >= 2) {
+                    tryPlay();
+                } else {
+                    audio.addEventListener('loadedmetadata', tryPlay, { once: true });
+                }
+                
+                // Fallback: se não carregar em 5 segundos, resolve
+                setTimeout(doResolve, 5000);
+            });
+        }
+
+        // Função para calcular dias úteis (exclui sábados e domingos)
+        function addBusinessDays(date, days) {
+            let result = new Date(date);
+            let addedDays = 0;
+            
+            while (addedDays < days) {
+                result.setDate(result.getDate() + 1);
+                const dayOfWeek = result.getDay();
+                // Se não for sábado (6) nem domingo (0), conta como dia útil
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    addedDays++;
+                }
+            }
+            
+            return result;
+        }
+
+        // Função para formatar data no formato DD/MM/YYYY
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Função para formatar CPF (XXX.XXX.XXX-XX)
+        function formatCPF(cpf) {
+            const cleaned = cpf.replace(/\D/g, '');
+            if (cleaned.length !== 11) return cpf;
+            return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
+        async function showShippingOptions() {
+            const nomeCompleto = window.chatUserFullName || 'Cliente';
+            const cpf = window.chatUserCPF || '';
+            const endereco = window.chatUserAddress || '';
+
+            // Calcular data de entrega (+2 dias úteis)
+            const hoje = new Date();
+            const dataEntrega = addBusinessDays(hoje, 2);
+            const dataFormatada = formatDate(dataEntrega);
+            
+            // Meses em português para fala
+            const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 
+                          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+            const dia = dataEntrega.getDate();
+            const mes = meses[dataEntrega.getMonth()];
+            const ano = dataEntrega.getFullYear();
+            const dataParaFalar = `${dia} de ${mes} de ${ano}`;
+
+            // 1. Enviar áudio sobre WhatsApp/email e entrega
+            const recEl = appendBotRecording();
+            const primeiroNome = nomeCompleto.split(' ')[0];
+            const audioText = `Perfeito, ${primeiroNome}! Seu pedido foi confirmado com sucesso. Após o pagamento, todas as informações serão enviadas automaticamente para o seu WhatsApp e e-mail. Sua entrega Full chegará em até 2 dias úteis, prevista para ${dataParaFalar}.`;
+            const audioUrl = await speak(audioText);
+            await waitHuman(900, 1400);
+            recEl.remove();
+            
+            if (audioUrl) {
+                // appendAudioMessage já retorna uma Promise que resolve quando o áudio termina
+                await appendAudioMessage(audioUrl);
+            } else {
+                // Fallback se não houver áudio
+                await waitHuman(2000, 3000);
+            }
+
+            // 2. Aguardar um pouco após o áudio
+            await waitHuman(800, 1200);
+
+            // 3. Mostrar dados do usuário (nome completo, CPF, endereço)
+            const dadosWrapper = document.createElement('div');
+            dadosWrapper.className = 'message';
+            const dadosAvatar = document.createElement('div');
+            dadosAvatar.className = 'message__avatar';
+            const dadosAvatarImg = document.createElement('img');
+            dadosAvatarImg.src = '/assets/Screenshot_5.png';
+            dadosAvatarImg.alt = 'Andressa';
+            dadosAvatar.appendChild(dadosAvatarImg);
+            const dadosContent = document.createElement('div');
+            dadosContent.style.maxWidth = '85%';
+            const dadosBubble = document.createElement('div');
+            dadosBubble.className = 'bubble';
+            dadosBubble.style.padding = '14px 16px';
+            dadosBubble.style.background = '#f8f8f8';
+
+            const dadosTitle = document.createElement('div');
+            dadosTitle.style.fontWeight = '600';
+            dadosTitle.style.marginBottom = '12px';
+            dadosTitle.style.color = '#222';
+            dadosTitle.textContent = '📋 Seus Dados';
+
+            const dadosList = document.createElement('div');
+            dadosList.style.display = 'flex';
+            dadosList.style.flexDirection = 'column';
+            dadosList.style.gap = '8px';
+            dadosList.style.fontSize = '13px';
+
+            if (nomeCompleto) {
+                const nomeItem = document.createElement('div');
+                nomeItem.innerHTML = `<strong>Nome:</strong> ${nomeCompleto}`;
+                dadosList.appendChild(nomeItem);
+            }
+
+            if (cpf) {
+                const cpfItem = document.createElement('div');
+                cpfItem.innerHTML = `<strong>CPF:</strong> ${formatCPF(cpf)}`;
+                dadosList.appendChild(cpfItem);
+            }
+
+            if (endereco) {
+                const enderecoItem = document.createElement('div');
+                enderecoItem.innerHTML = `<strong>Endereço:</strong> ${endereco}`;
+                dadosList.appendChild(enderecoItem);
+            }
+
+            dadosBubble.appendChild(dadosTitle);
+            dadosBubble.appendChild(dadosList);
+            dadosContent.appendChild(dadosBubble);
+            dadosWrapper.appendChild(dadosAvatar);
+            dadosWrapper.appendChild(dadosContent);
+            chat.appendChild(dadosWrapper);
+            scrollToBottom();
+
+            // 4. Aguardar 2 segundos e mostrar botão de prosseguir
+            await wait(2000);
+
+            // 5. Mostrar botão "Prosseguir para Pagamento"
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'message';
+            const buttonAvatar = document.createElement('div');
+            buttonAvatar.className = 'message__avatar';
+            const buttonAvatarImg = document.createElement('img');
+            buttonAvatarImg.src = '/assets/Screenshot_5.png';
+            buttonAvatarImg.alt = 'Andressa';
+            buttonAvatar.appendChild(buttonAvatarImg);
+            const buttonContent = document.createElement('div');
+            buttonContent.style.maxWidth = '95%';
+            buttonContent.style.width = '95%';
+            const buttonBubble = document.createElement('div');
+            buttonBubble.className = 'bubble';
+            buttonBubble.style.padding = '16px 18px';
+
+            const proceedBtn = document.createElement('button');
+            proceedBtn.type = 'button';
+            proceedBtn.className = 'address-confirm-btn';
+            proceedBtn.style.width = '100%';
+            proceedBtn.style.padding = '16px';
+            proceedBtn.style.fontSize = '16px';
+            proceedBtn.style.fontWeight = '700';
+            proceedBtn.textContent = 'Prosseguir para Pagamento';
+            proceedBtn.addEventListener('click', async () => {
+                proceedBtn.disabled = true;
+                proceedBtn.style.opacity = '0.7';
+                
+                const typingEl = appendBotTyping();
+                await waitHuman(500, 800);
+                typingEl.remove();
+                
+                // Salvar dados no localStorage antes de redirecionar
+                const checkoutData = {
+                    nome: window.chatUserFullName || '',
+                    cpf: window.chatUserCPF || '',
+                    endereco: window.chatUserAddress || ''
+                };
+                
+                // Incluir dados do produto se existirem
+                const productData = localStorage.getItem('selectedProduct');
+                if (productData) {
+                    checkoutData.produto = JSON.parse(productData);
+                }
+                
+                localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+                
+                // Redirecionar para checkout
+                window.location.href = '/checkout.html';
+            });
+
+            buttonBubble.appendChild(proceedBtn);
+            buttonContent.appendChild(buttonBubble);
+            buttonWrapper.appendChild(buttonAvatar);
+            buttonWrapper.appendChild(buttonContent);
+            chat.appendChild(buttonWrapper);
+            scrollToBottom();
+        }
+
+        // Iniciar fluxo
+        startFlow();
+    </script>
+</body>
+</html>

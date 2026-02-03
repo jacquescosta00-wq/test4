@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Debug</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0f14; color: #e6edf3; }
+    .topbar {
+      position: sticky; top: 0; z-index: 5;
+      padding: 12px 14px;
+      background: rgba(11,15,20,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .title { font-weight: 800; font-size: 14px; }
+    .subtitle { margin-top: 4px; font-size: 12px; color: rgba(230,237,243,0.75); }
+    .row { margin-top: 10px; display: flex; gap: 8px; }
+    button {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: #e6edf3;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.primary { background: #ee4d2d; border-color: #ee4d2d; }
+    .wrap { padding: 14px; }
+    .panel {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kv div { font-size: 12px; }
+    .kv b { color: rgba(230,237,243,0.9); }
+    .logs { display: flex; flex-direction: column; gap: 8px; }
+    .log {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .log .meta { display: flex; justify-content: space-between; gap: 10px; }
+    .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .pill.info { background: rgba(46,160,67,0.18); color: #7ee787; border: 1px solid rgba(46,160,67,0.35); }
+    .pill.error { background: rgba(248,81,73,0.18); color: #ff7b72; border: 1px solid rgba(248,81,73,0.35); }
+    .pill.chat { background: rgba(238,77,45,0.25); color: #ff9d8a; border: 1px solid rgba(238,77,45,0.4); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .muted { color: rgba(230,237,243,0.65); }
+    .text-block {
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid #ee4d2d;
+      padding: 8px 10px;
+      margin: 6px 0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .text-label { font-size: 10px; color: rgba(230,237,243,0.5); margin-bottom: 4px; text-transform: uppercase; font-weight: 700; }
+    .flow-arrow { color: #ee4d2d; margin: 4px 0; text-align: center; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Admin Panel (Debug)</div>
+    <div class="subtitle">Debug do Chat: Input do usuário → ChatGPT → ElevenLabs</div>
+    <div class="row">
+      <button class="primary" id="refresh">Atualizar</button>
+      <button id="toggle">Auto: ON</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="kv" id="status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="muted" style="margin-bottom: 8px; font-size: 12px;">Logs do Chat (últimos 120)</div>
+      <div class="logs" id="logs"></div>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const logsEl = document.getElementById('logs');
+    const refreshBtn = document.getElementById('refresh');
+    const toggleBtn = document.getElementById('toggle');
+
+    let auto = true;
+    let timer = null;
+
+    function kvRow(label, value) {
+      const d = document.createElement('div');
+      d.innerHTML = `<b>${label}:</b> <span class="mono">${value}</span>`;
+      return d;
+    }
+
+    function fmtJson(obj) {
+      try { return JSON.stringify(obj); } catch { return String(obj); }
+    }
+
+    async function load() {
+      // status
+      try {
+        const s = await fetch('/api/debug/status').then(r => r.json());
+        statusEl.innerHTML = '';
+        statusEl.appendChild(kvRow('ElevenLabs key', s.has_elevenlabs_key ? 'OK' : 'MISSING'));
+        statusEl.appendChild(kvRow('OpenAI key', s.has_openai_key ? 'OK' : 'MISSING'));
+        statusEl.appendChild(kvRow('OpenAI model', s.openai_model));
+        statusEl.appendChild(kvRow('Port', s.port));
+      } catch (e) {
+        statusEl.innerHTML = `<div class="mono">Erro ao carregar status</div>`;
+      }
+
+      // logs
+      try {
+        const logs = await fetch('/api/debug/logs?limit=120').then(r => r.json());
+        logsEl.innerHTML = '';
+        // Filtrar apenas eventos relacionados ao chat (ignorar http_request)
+        const chatLogs = logs.filter(l => 
+          l.event !== 'http_request' && 
+          (l.event.includes('chat') || l.event.includes('tts') || l.event.includes('chatgpt') || l.event.includes('elevenlabs') || l.event.includes('openai'))
+        );
+        
+        chatLogs.slice().reverse().forEach(l => {
+          const div = document.createElement('div');
+          div.className = 'log';
+          let pill = l.level === 'error' ? 'error' : 'info';
+          if (l.event.includes('chat') || l.event.includes('tts') || l.event.includes('chatgpt') || l.event.includes('elevenlabs')) {
+            pill = 'chat';
+          }
+          
+          let content = `<div class="meta">
+            <span class="pill ${pill}">${l.level.toUpperCase()}</span>
+            <span class="mono muted">${new Date(l.ts).toLocaleTimeString('pt-BR')}</span>
+          </div>
+          <div style="margin-top:6px" class="mono"><b>${l.event}</b></div>`;
+
+          // Formatação especial para eventos de chat
+          if (l.event === 'chat_input') {
+            content += `
+              <div class="text-block">
+                <div class="text-label">👤 Você digitou:</div>
+                <div>${escapeHtml(l.data.original || '')}</div>
+              </div>
+              ${l.data.cleaned && l.data.cleaned !== l.data.original ? `
+                <div class="text-block" style="border-left-color: rgba(255,255,255,0.2);">
+                  <div class="text-label">🧹 Limpo:</div>
+                  <div class="muted">${escapeHtml(l.data.cleaned)}</div>
+                </div>
+              ` : ''}
+            `;
+          } else if (l.event === 'chatgpt_response') {
+            content += `
+              <div class="text-block">
+                <div class="text-label">📥 Entrada (ChatGPT recebeu):</div>
+                <div class="muted">${escapeHtml(l.data.input_cleaned || '')}</div>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="text-block" style="border-left-color: #7ee787;">
+                <div class="text-label">🤖 ChatGPT pensou:</div>
+                <div>${escapeHtml(l.data.chatgpt_output || '')}</div>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="text-block" style="border-left-color: #ee4d2d;">
+                <div class="text-label">🔊 Texto final (vai para ElevenLabs):</div>
+                <div><strong>${escapeHtml(l.data.final_text || '')}</strong></div>
+              </div>
+              ${l.data.ms ? `<div class="muted" style="margin-top:6px; font-size:11px;">⏱️ ${l.data.ms}ms | Tokens: ${l.data.tokens_used || 'N/A'}</div>` : ''}
+            `;
+          } else if (l.event === 'chatgpt_request') {
+            content += `
+              <div class="text-block">
+                <div class="text-label">📤 Enviando para ChatGPT:</div>
+                <div>${escapeHtml(l.data.input_text || '')}</div>
+              </div>
+              <div class="muted" style="margin-top:4px; font-size:11px;">Model: ${l.data.model || 'N/A'}</div>
+            `;
+          } else if (l.event === 'chatgpt_error' || l.event === 'chatgpt_exception') {
+            content += `
+              <div class="text-block" style="border-left-color: #ff7b72;">
+                <div class="text-label">❌ Erro no ChatGPT:</div>
+                <div>${escapeHtml(l.data.error || l.data.message || 'Erro desconhecido')}</div>
+              </div>
+              ${l.data.status ? `<div class="muted" style="margin-top:4px; font-size:11px;">Status: ${l.data.status}</div>` : ''}
+              ${l.data.ms ? `<div class="muted" style="margin-top:4px; font-size:11px;">⏱️ ${l.data.ms}ms</div>` : ''}
+            `;
+          } else if (l.event === 'chatgpt_skipped') {
+            content += `
+              <div class="text-block" style="border-left-color: rgba(255,255,255,0.3);">
+                <div class="text-label">⏭️ ChatGPT pulado:</div>
+                <div class="muted">${escapeHtml(l.data.reason === 'no_api_key' ? 'Sem API key do OpenAI' : l.data.reason || '')}</div>
+              </div>
+            `;
+          } else if (l.event === 'tts_ready_for_elevenlabs') {
+            content += `
+              <div class="text-block" style="border-left-color: #ee4d2d;">
+                <div class="text-label">🎤 Enviando para ElevenLabs:</div>
+                <div><strong>${escapeHtml(l.data.text_to_speak || '')}</strong></div>
+              </div>
+              ${l.data.format_time_ms ? `<div class="muted" style="margin-top:6px; font-size:11px;">⏱️ Formatação: ${l.data.format_time_ms}ms</div>` : ''}
+            `;
+          } else if (l.event === 'tts_complete') {
+            content += `
+              <div class="text-block" style="border-left-color: #7ee787;">
+                <div class="text-label">✅ Áudio gerado com sucesso:</div>
+                <div><strong>${escapeHtml(l.data.final_text_spoken || '')}</strong></div>
+              </div>
+              <div class="muted" style="margin-top:6px; font-size:11px;">
+                📦 ${(l.data.audio_bytes / 1024).toFixed(1)} KB | 
+                ⏱️ ElevenLabs: ${l.data.elevenlabs_ms || 0}ms | 
+                Total: ${l.data.total_ms || 0}ms
+              </div>
+            `;
+          } else if (l.event === 'elevenlabs_error' || l.event === 'tts_exception') {
+            content += `
+              <div class="text-block" style="border-left-color: #ff7b72;">
+                <div class="text-label">❌ Erro no ElevenLabs:</div>
+                <div>${escapeHtml(l.data.error || l.data.message || 'Erro desconhecido')}</div>
+              </div>
+              ${l.data.status ? `<div class="muted" style="margin-top:4px; font-size:11px;">Status: ${l.data.status}</div>` : ''}
+              ${l.data.ms ? `<div class="muted" style="margin-top:4px; font-size:11px;">⏱️ ${l.data.ms}ms</div>` : ''}
+            `;
+          } else if (l.event === 'tts_request_start') {
+            content += `
+              <div class="text-block" style="border-left-color: #ee4d2d;">
+                <div class="text-label">🎤 Iniciando TTS:</div>
+                <div>${escapeHtml(l.data.user_input || '')}</div>
+              </div>
+              <div class="muted" style="margin-top:4px; font-size:11px;">
+                Voice: ${l.data.voiceId || 'N/A'} | Model: ${l.data.modelId || 'N/A'}
+              </div>
+            `;
+          } else if (l.event === 'missing_elevenlabs_key' || l.event === 'bad_request') {
+            content += `
+              <div class="text-block" style="border-left-color: #ff7b72;">
+                <div class="text-label">⚠️ ${l.event === 'missing_elevenlabs_key' ? 'API Key faltando' : 'Requisição inválida'}:</div>
+                <div class="muted">${escapeHtml(fmtJson(l.data))}</div>
+              </div>
+            `;
+          } else {
+            content += `<div style="margin-top:6px" class="mono muted">${escapeHtml(fmtJson(l.data))}</div>`;
+          }
+
+          div.innerHTML = content;
+          logsEl.appendChild(div);
+        });
+      } catch (e) {
+        logsEl.innerHTML = `<div class="mono">Erro ao carregar logs</div>`;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function setAuto(v) {
+      auto = v;
+      toggleBtn.textContent = `Auto: ${auto ? 'ON' : 'OFF'}`;
+      if (timer) clearInterval(timer);
+      if (auto) timer = setInterval(load, 1500);
+    }
+
+    refreshBtn.addEventListener('click', load);
+    toggleBtn.addEventListener('click', () => setAuto(!auto));
+
+    setAuto(true);
+    load();
+  </script>
+</body>
+</html>
