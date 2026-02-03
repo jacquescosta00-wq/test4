@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Shopee</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f3f3;
+            color: #222;
+            padding-bottom: 100px;
+        }
+        .container {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 16px;
+        }
+        .shipping-option {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: #fff;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+        .shipping-option:last-child {
+            margin-bottom: 0;
+        }
+        .shipping-option:hover {
+            border-color: #ee4d2d;
+        }
+        .shipping-option.selected {
+            border-color: #ee4d2d;
+            background: #fff5f5;
+            box-shadow: 0 2px 8px rgba(238, 77, 45, 0.2);
+        }
+        .shipping-option.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .shipping-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shipping-name {
+            font-weight: 700;
+            color: #222;
+            font-size: 16px;
+        }
+        .shipping-price {
+            font-weight: 700;
+            color: #ee4d2d;
+            font-size: 18px;
+        }
+        .shipping-badge {
+            font-size: 11px;
+            color: #ee4d2d;
+            background: #fff0ed;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .shipping-info {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+        .payment-option {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: #fff;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .payment-option:last-child {
+            margin-bottom: 0;
+        }
+        .payment-option:hover {
+            border-color: #32BCAD;
+        }
+        .payment-option.selected {
+            border-color: #32BCAD;
+            background: #f0fdfc;
+        }
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .payment-info {
+            flex: 1;
+        }
+        .payment-name {
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .payment-badge {
+            background: #32BCAD;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .payment-price {
+            font-size: 12px;
+            color: #666;
+        }
+        .checkout-btn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ee4d2d;
+            color: #fff;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+        .checkout-btn:hover {
+            filter: brightness(0.95);
+        }
+        .checkout-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .address-card {
+            background: #fff;
+            border-radius: 0;
+            padding: 16px;
+            margin-bottom: 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .address-card:hover {
+            background: #f8f8f8;
+        }
+        .address-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .address-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .address-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+        }
+        .address-text {
+            font-size: 13px;
+            color: #ee4d2d;
+            word-wrap: break-word;
+        }
+        .address-text.has-address {
+            color: #222;
+        }
+        .address-arrow {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            color: #BDBDBD;
+        }
+        .full-badge {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .full-badge img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        .full-badge-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #222;
+        }
+        .whatsapp-notice {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .whatsapp-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .whatsapp-notice-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+            flex: 1;
+        }
+        .package-card {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .package-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .package-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .package-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #222;
+        }
+        .package-date {
+            font-size: 14px;
+            color: rgb(38, 170, 153);
+        }
+        .product-card {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            margin-top: 0;
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .product-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .product-title {
+            font-size: 14px;
+            color: #222;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .product-variation {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .product-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .product-price {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+        .product-price-currency {
+            font-size: 12px;
+            color: #ee4d2d;
+        }
+        .product-price-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ee4d2d;
+        }
+        .product-quantity {
+            font-size: 13px;
+            color: #666;
+        }
+        .product-seller {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .total-card {
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-items {
+            font-size: 14px;
+            color: #222;
+        }
+        .total-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ee4d2d;
+        }
+        .payment-section {
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px 12px;
+            margin-top: 8px;
+        }
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .payment-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+        }
+        .payment-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.5;
+        }
+        .payment-processor {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 16px;
+            padding-left: 0;
+        }
+        .payment-processor-text {
+            color: rgba(0, 0, 0, 0.4);
+            font-size: 12px;
+            margin-right: 4px;
+        }
+        .payment-processor-logo {
+            height: 14px;
+            width: auto;
+            object-fit: contain;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .payment-option:hover {
+            background: #fafafa;
+        }
+        .payment-option.selected {
+            border-color: #ee4d2d;
+            background: #fff5f5;
+        }
+        .payment-option-logo {
+            width: 28px;
+            height: 28px;
+            margin-right: 12px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .payment-option-name {
+            font-size: 14px;
+            color: #222;
+            flex: 1;
+            font-weight: 500;
+        }
+        .payment-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-left: 8px;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .payment-radio.selected {
+            border-color: #ee4d2d;
+        }
+        .payment-radio.selected::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #ee4d2d;
+            border-radius: 50%;
+        }
+        .payment-button-container {
+            padding: 16px 12px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(238, 77, 45, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 4px rgba(238, 77, 45, 0.1);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(238, 77, 45, 0);
+            }
+        }
+        .payment-button {
+            width: 100%;
+            background: #ee4d2d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .payment-button:hover {
+            background: #e6392a;
+            filter: brightness(0.95);
+            animation: none;
+        }
+        .payment-button:active {
+            transform: scale(0.98);
+            animation: none;
+        }
+        .payment-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Card de Endereço de Entrega -->
+        <div class="address-card" id="addressCard">
+            <svg class="address-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#ee4d2d"/>
+            </svg>
+            <div class="address-content">
+                <div class="address-label">Endereço de entrega</div>
+                <div class="address-text" id="addressText">Por favor selecione endereço</div>
+            </div>
+            <svg class="address-arrow" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.268 0.825509C4.5853 0.559257 5.05837 0.600645 5.32462 0.917951L9.04651 5.35352C9.35845 5.72528 9.35845 6.26734 9.0465 6.6391L5.32455 11.0747C5.0583 11.392 4.58523 11.4334 4.26792 11.1672C3.95062 10.9009 3.90923 10.4278 4.17549 10.1105L7.35807 6.3177C7.51404 6.13182 7.51404 5.86079 7.35807 5.67491L4.17555 1.88213C3.9093 1.56483 3.95069 1.09176 4.268 0.825509Z"></path>
+            </svg>
+        </div>
+
+        <!-- Badge Full -->
+        <div class="full-badge">
+            <img src="https://cf.shopee.com.br/file/sg-11134269-824gg-mei16yntvif7c3" alt="Full">
+            <span class="full-badge-text">Full</span>
+        </div>
+
+        <!-- Aviso WhatsApp -->
+        <div class="whatsapp-notice">
+            <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" fill="#25D366"/>
+            </svg>
+            <div class="whatsapp-notice-text">Após o pagamento, todas as informações serão enviadas automaticamente para o seu WhatsApp e e-mail.</div>
+        </div>
+
+        <!-- Card Pacote -->
+        <div class="package-card">
+            <div class="package-left">
+                <img src="https://deo.shopeemobile.com/shopee/shopee-mobilemall-live-sg/checkout/fb86ec25a567bd4bc61f.svg" alt="Pacote" class="package-icon">
+                <div class="package-title">Pacote 1</div>
+            </div>
+            <div class="package-date" id="packageDate"></div>
+        </div>
+
+        <!-- Card Produto -->
+        <div class="product-card" id="productCard">
+            <img class="product-image" id="productImage" src="https://down-br.img.susercontent.com/file/br-11134207-81z1k-mfoaae47dlac93@resize_w80_nl" alt="Produto">
+            <div class="product-info">
+                <div class="product-title" id="productTitle">Gummy Original - Night Suplemento para dormir em goma - Framboesa</div>
+                <div class="product-variation" id="productVariation">1 Mês</div>
+                <div class="product-price-row">
+                    <div class="product-price">
+                        <span class="product-price-currency">R$</span>
+                        <span class="product-price-amount" id="productPrice">38,35</span>
+                    </div>
+                    <div class="product-quantity" id="productQuantity">x1</div>
+                </div>
+                <div class="product-seller" id="productSeller">Vendido por Gummy Original</div>
+            </div>
+        </div>
+
+        <!-- Card Total -->
+        <div class="total-card">
+            <div class="total-items" id="totalItems">Total de 1 itens</div>
+            <div class="total-price" id="totalPrice">R$38,35</div>
+        </div>
+
+        <!-- Métodos de Pagamento -->
+        <div class="payment-section">
+            <div class="payment-header">
+                <div class="payment-title">Métodos de pagamento</div>
+                <img src="https://deo.shopeemobile.com/shopee/shopee-mobilemall-live-sg/checkout/f3fdbb13dc67de982777.svg" class="payment-icon" alt="Pagamento">
+            </div>
+            
+            <div class="payment-processor">
+                <span class="payment-processor-text">Processado por</span>
+                <img src="https://spm.susercontent.com/api/v4/50092786/shopee_logo_bucket/static/images/powered_by_spp_brand.png" class="payment-processor-logo" alt="ShopeePay">
+            </div>
+            
+            <div class="payment-option selected" id="pixOption">
+                <img src="https://spm.susercontent.com/api/v4/50092786/shopee_logo_bucket/static/images/ic_payment_adyen_pix@2x.png" class="payment-option-logo" alt="Pix">
+                <div class="payment-option-name">Pix</div>
+                <div class="payment-radio selected" id="pixRadio"></div>
+            </div>
+        </div>
+
+        <!-- Botão Realizar Pagamento -->
+        <div class="payment-button-container">
+            <button type="button" class="payment-button" id="realizarPagamentoBtn">Realizar Pagamento</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Função para calcular dias úteis
+        function addBusinessDays(date, days) {
+            let result = new Date(date);
+            let addedDays = 0;
+            
+            while (addedDays < days) {
+                result.setDate(result.getDate() + 1);
+                const dayOfWeek = result.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    addedDays++;
+                }
+            }
+            
+            return result;
+        }
+
+        // Função para formatar data no padrão brasileiro (ex: "18 de fev")
+        function formatDateBR(date) {
+            const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+            const day = date.getDate();
+            const month = meses[date.getMonth()];
+            return `${day} de ${month}`;
+        }
+
+        // Carregar endereço do localStorage
+        function loadAddress() {
+            try {
+                const checkoutData = localStorage.getItem('checkoutData');
+                if (checkoutData) {
+                    const data = JSON.parse(checkoutData);
+                    const addressTextEl = document.getElementById('addressText');
+                    if (data.endereco && data.endereco.trim()) {
+                        addressTextEl.textContent = data.endereco;
+                        addressTextEl.classList.add('has-address');
+                    } else {
+                        addressTextEl.textContent = 'Por favor selecione endereço';
+                        addressTextEl.classList.remove('has-address');
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao carregar endereço:', e);
+            }
+        }
+
+        // Calcular e exibir data de entrega
+        function loadPackageDate() {
+            const hoje = new Date();
+            const dataEntrega = addBusinessDays(hoje, 2);
+            const dataFormatada = formatDateBR(dataEntrega);
+            document.getElementById('packageDate').textContent = `Receba até ${dataFormatada}`;
+        }
+
+        // Carregar dados do produto
+        function loadProduct() {
+            try {
+                let produto = null;
+                
+                // Tentar pegar do checkoutData primeiro
+                const checkoutData = localStorage.getItem('checkoutData');
+                if (checkoutData) {
+                    const data = JSON.parse(checkoutData);
+                    if (data.produto) {
+                        produto = data.produto;
+                    }
+                }
+                
+                // Se não encontrou, tentar pegar do selectedProduct
+                if (!produto) {
+                    const selectedProduct = localStorage.getItem('selectedProduct');
+                    if (selectedProduct) {
+                        produto = JSON.parse(selectedProduct);
+                    }
+                }
+                
+                // Se ainda não encontrou, usar valores padrão
+                if (!produto) {
+                    produto = {
+                        quantidade: '1 Mês',
+                        imagem: 'https://down-br.img.susercontent.com/file/br-11134207-81z1k-mfoaae47dlac93',
+                        preco: 38.35,
+                        titulo: 'Gummy Original - Night Suplemento para dormir em goma - Framboesa',
+                        vendedor: 'Gummy Original'
+                    };
+                }
+                
+                // Converter imagem para versão pequena (80x80)
+                let imageUrl = produto.imagem || 'https://down-br.img.susercontent.com/file/br-11134207-81z1k-mfoaae47dlac93';
+                
+                // Se a URL não tem resize, adicionar o resize_w80_nl
+                if (!imageUrl.includes('@resize')) {
+                    // Adicionar @resize_w80_nl ao final da URL (antes de qualquer query string)
+                    const baseUrl = imageUrl.split('?')[0];
+                    imageUrl = baseUrl + '@resize_w80_nl';
+                } else if (imageUrl.includes('@resize_w640_nl') || imageUrl.includes('@resize_w264_nl')) {
+                    // Substituir qualquer resize existente por resize_w80_nl
+                    imageUrl = imageUrl.replace(/@resize_w\d+_nl/g, '@resize_w80_nl');
+                }
+                
+                document.getElementById('productImage').src = imageUrl;
+                document.getElementById('productTitle').textContent = produto.titulo || 'Gummy Original - Night Suplemento para dormir em goma - Framboesa';
+                document.getElementById('productVariation').textContent = produto.quantidade || '1 Mês';
+                document.getElementById('productPrice').textContent = (produto.preco || 38.35).toFixed(2).replace('.', ',');
+                document.getElementById('productSeller').textContent = `Vendido por ${produto.vendedor || 'Gummy Original'}`;
+                document.getElementById('productCard').style.display = 'flex';
+                
+                // Atualizar total
+                const preco = produto.preco || 38.35;
+                document.getElementById('totalPrice').textContent = `R$${preco.toFixed(2).replace('.', ',')}`;
+            } catch (e) {
+                console.error('Erro ao carregar produto:', e);
+                // Mesmo com erro, mostrar produto padrão
+                document.getElementById('productImage').src = 'https://down-br.img.susercontent.com/file/br-11134207-81z1k-mfoaae47dlac93@resize_w80_nl';
+                document.getElementById('productTitle').textContent = 'Gummy Original - Night Suplemento para dormir em goma - Framboesa';
+                document.getElementById('productVariation').textContent = '1 Mês';
+                document.getElementById('productPrice').textContent = '38,35';
+                document.getElementById('productSeller').textContent = 'Vendido por Gummy Original';
+                document.getElementById('productCard').style.display = 'flex';
+            }
+        }
+
+        // Seleção de método de pagamento
+        const pixOption = document.getElementById('pixOption');
+        const pixRadio = document.getElementById('pixRadio');
+        
+        if (pixOption && pixRadio) {
+            // Pix já vem selecionado por padrão
+            pixOption.classList.add('selected');
+            pixRadio.classList.add('selected');
+            localStorage.setItem('selectedPayment', 'pix');
+            
+            pixOption.addEventListener('click', () => {
+                pixRadio.classList.add('selected');
+                pixOption.classList.add('selected');
+                localStorage.setItem('selectedPayment', 'pix');
+            });
+        }
+
+
+        // Handler do botão "Realizar Pagamento"
+        const realizarPagamentoBtn = document.getElementById('realizarPagamentoBtn');
+        if (realizarPagamentoBtn) {
+            realizarPagamentoBtn.addEventListener('click', async () => {
+                realizarPagamentoBtn.disabled = true;
+                realizarPagamentoBtn.textContent = 'Gerando PIX...';
+                realizarPagamentoBtn.style.opacity = '0.7';
+
+                try {
+                    // Buscar dados do checkout (sempre usar fallback se não tiver)
+                    let checkoutData = {};
+                    try {
+                        const stored = localStorage.getItem('checkoutData');
+                        if (stored) {
+                            checkoutData = JSON.parse(stored);
+                        }
+                    } catch (e) {
+                        console.error('Erro ao ler checkoutData:', e);
+                    }
+                    
+                    // Buscar produto
+                    let produto = checkoutData.produto || {};
+                    if (!produto || !produto.preco) {
+                        try {
+                            const selectedProduct = localStorage.getItem('selectedProduct');
+                            if (selectedProduct) {
+                                produto = JSON.parse(selectedProduct);
+                            }
+                        } catch (e) {
+                            console.error('Erro ao ler selectedProduct:', e);
+                        }
+                    }
+                    
+                    // Se ainda não tem produto, usar padrão
+                    if (!produto || !produto.preco) {
+                        produto = {
+                            preco: 38.35,
+                            titulo: 'Gummy Original - Night Suplemento para dormir em goma - Framboesa'
+                        };
+                    }
+                    
+                    // Calcular valor em centavos
+                    const valor = Math.round((produto.preco || 38.35) * 100);
+                    
+                    // SEMPRE usar dados de fallback se não tiver informações completas
+                    const customer = {
+                        name: (checkoutData.nome && checkoutData.nome.trim()) || 'Brasil Pagamentos',
+                        document: (checkoutData.cpf && checkoutData.cpf.replace(/\D/g, '').length === 11) 
+                            ? checkoutData.cpf.replace(/\D/g, '') 
+                            : '12313048470',
+                        email: (checkoutData.email && checkoutData.email.trim()) || '22999060480@temp.com',
+                        phone: '22999060480'
+                    };
+                    
+                    // Garantir que o CPF tem 11 dígitos
+                    if (customer.document.length !== 11) {
+                        customer.document = '12313048470';
+                    }
+
+                    // Gerar PIX
+                    const response = await fetch('/api/generate-pix', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: valor,
+                            description: `Pagamento - ${produto.titulo || 'Produto Shopee'}`,
+                            customer: customer,
+                            item: {
+                                title: produto.titulo || 'Produto Shopee',
+                                price: valor,
+                                quantity: 1
+                            }
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || data.error) {
+                        throw new Error(data.error || 'Erro ao gerar PIX');
+                    }
+
+                    // Redirecionar para página PIX
+                    const pixUrl = `/pix.html?pixCode=${encodeURIComponent(data.pixCode)}&transactionId=${encodeURIComponent(data.transactionId)}&amount=${valor}`;
+                    window.location.href = pixUrl;
+
+                } catch (error) {
+                    console.error('Erro ao gerar PIX:', error);
+                    alert('Erro ao gerar PIX: ' + (error.message || 'Tente novamente'));
+                    realizarPagamentoBtn.disabled = false;
+                    realizarPagamentoBtn.textContent = 'Realizar Pagamento';
+                    realizarPagamentoBtn.style.opacity = '1';
+                }
+            });
+        }
+
+        // Inicializar
+        loadAddress();
+        loadPackageDate();
+        loadProduct();
+    </script>
+</body>
+</html>
