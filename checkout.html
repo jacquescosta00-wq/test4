@@ -675,13 +675,28 @@
                 document.getElementById('productImage').src = imageUrl;
                 document.getElementById('productTitle').textContent = produto.titulo || 'Gummy Original - Night Suplemento para dormir em goma - Framboesa';
                 document.getElementById('productVariation').textContent = produto.quantidade || '1 Mês';
-                document.getElementById('productPrice').textContent = (produto.preco || 38.35).toFixed(2).replace('.', ',');
+                
+                // Atualizar quantidade de unidades
+                const quantidadeUnidades = produto.quantidadeUnidades || 1;
+                document.getElementById('productQuantity').textContent = `x${quantidadeUnidades}`;
+                
+                // Se tiver preço total, usar ele; senão calcular
+                let precoTotal = produto.preco || 38.35;
+                if (produto.precoUnitario && quantidadeUnidades > 1) {
+                    // Se tiver preço unitário, garantir que o total está correto
+                    precoTotal = produto.preco || (produto.precoUnitario * quantidadeUnidades);
+                }
+                
+                document.getElementById('productPrice').textContent = precoTotal.toFixed(2).replace('.', ',');
                 document.getElementById('productSeller').textContent = `Vendido por ${produto.vendedor || 'Gummy Original'}`;
                 document.getElementById('productCard').style.display = 'flex';
                 
                 // Atualizar total
-                const preco = produto.preco || 38.35;
-                document.getElementById('totalPrice').textContent = `R$${preco.toFixed(2).replace('.', ',')}`;
+                document.getElementById('totalPrice').textContent = `R$${precoTotal.toFixed(2).replace('.', ',')}`;
+                
+                // Atualizar total de itens
+                const totalItems = quantidadeUnidades;
+                document.getElementById('totalItems').textContent = `Total de ${totalItems} ${totalItems === 1 ? 'item' : 'itens'}`;
             } catch (e) {
                 console.error('Erro ao carregar produto:', e);
                 // Mesmo com erro, mostrar produto padrão
